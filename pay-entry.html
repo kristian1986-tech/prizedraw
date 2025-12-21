@@ -53,12 +53,20 @@
 
     message.innerHTML = `Thanks ${name}! Redirecting to payment...`;
 
-    // FUTURE: conectare Stripe Checkout
-    // Înlocuiește următorul cod cu ID-ul Checkout Session creat în contul tău Stripe
-    // const stripe = Stripe("YOUR_PUBLISHABLE_KEY_HERE");
-    // stripe.redirectToCheckout({ sessionId: "YOUR_CHECKOUT_SESSION_ID_HERE" });
+    // 1️⃣ Inițializează Stripe
+    const stripe = Stripe("YOUR_PUBLISHABLE_KEY_HERE"); // cheie publică Stripe
 
-    // reset formular
+    // 2️⃣ Redirecționează la Checkout Session
+    // Înlocuiește cu sessionId generat în Stripe
+    stripe.redirectToCheckout({ 
+      sessionId: "YOUR_CHECKOUT_SESSION_ID_HERE" 
+    }).then(function(result) {
+      if(result.error){
+        message.innerHTML = `Error: ${result.error.message}`;
+      }
+    });
+
+    // 3️⃣ Reset formular
     form.reset();
   });
 </script>
