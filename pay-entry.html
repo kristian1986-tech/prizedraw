@@ -81,6 +81,8 @@
   <div id="message"></div>
 </div>
 
+<!-- Stripe JS -->
+<script src="https://js.stripe.com/v3/"></script>
 <script>
   const form = document.getElementById("paidEntryForm");
   const message = document.getElementById("message");
@@ -88,20 +90,19 @@
   form.addEventListener("submit", function(e) {
     e.preventDefault();
 
-    // colectăm datele
     const formData = new FormData(form);
     const name = formData.get("name");
     const phone = formData.get("phone");
     const tickets = formData.get("tickets");
 
-    // aici vom integra Stripe mai târziu
-    message.innerHTML = `Thanks ${name}! Your entry for ${tickets} ticket(s) is recorded. Payment will be processed here once Stripe is connected.`;
+    message.innerHTML = `Thanks ${name}! Preparing your payment...`;
+
+    // FUTURE: conectare Stripe Checkout
+    // Înlocuiește următoarea linie cu Payment Link sau Checkout Session
+    // Example: window.location.href = "YOUR_STRIPE_PAYMENT_LINK_HERE";
 
     // reset formular
     form.reset();
-
-    // FUTURE: redirecționare către Stripe Checkout
-    // window.location.href = "YOUR_STRIPE_PAYMENT_LINK_HERE";
   });
 </script>
 
