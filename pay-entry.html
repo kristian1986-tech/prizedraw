@@ -19,100 +19,90 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: center;
     }
+    h1 {
+      color: #222;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    input, select {
+      padding: 10px;
+      margin: 10px;
+      width: 300px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
     .button {
       display: inline-block;
       padding: 12px 25px;
-      margin: 10px;
+      margin: 20px;
       background: #0070f3;
       color: #fff;
       border-radius: 5px;
       text-decoration: none;
       font-weight: bold;
       font-size: 16px;
-      transition: background 0.3s;
       cursor: pointer;
+      transition: background 0.3s;
     }
     .button:hover {
       background: #005bb5;
     }
-    input {
-      padding: 8px;
-      width: 80%;
-      margin-bottom: 15px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    label {
-      font-weight: bold;
+    #message {
+      color: green;
+      margin-top: 10px;
     }
   </style>
-  <!-- Stripe.js library -->
-  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
 <div class="container">
-  <h1>Paid Entry – Prize Draw</h1>
-  <p>Paid entry is optional. Free postal entry has exactly the same chance of winning.</p>
+  <h1>Paid Entry</h1>
+  <p>Fill in your details and pay for your ticket(s). Each ticket has equal chance of winning!</p>
 
-  <!-- Formular participanti -->
-  <form id="entry-form">
-    <label for="name">Nume:</label><br>
-    <input type="text" id="name" name="name" required><br>
-
-    <label for="phone">Număr de telefon:</label><br>
-    <input type="tel" id="phone" name="phone" required><br>
-
-    <button type="submit" class="button">Trimite și Continuă la Plată</button>
+  <form id="paidEntryForm">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="tel" name="phone" placeholder="Phone Number" required>
+    <select name="tickets" required>
+      <option value="">Number of Tickets</option>
+      <option value="1">1 Ticket</option>
+      <option value="2">2 Tickets</option>
+      <option value="3">3 Tickets</option>
+      <option value="4">4 Tickets</option>
+      <option value="5">5 Tickets</option>
+    </select>
+    <button type="submit" class="button">Pay Now</button>
   </form>
 
-  <!-- Buton Stripe / Google Pay -->
-  <div style="margin-top: 20px;">
-    <button id="checkout-button" class="button">Pay Now</button>
-  </div>
-
-  <p>For full details, please refer to our <a href="terms.html">Terms & Conditions</a>.</p>
-  <p>© 2025 The promoter of this prize draw operates this website.</p>
+  <div id="message"></div>
 </div>
 
 <script>
-const form = document.getElementById('entry-form');
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
+  const form = document.getElementById("paidEntryForm");
+  const message = document.getElementById("message");
 
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-  // Trimite datele către Google Sheet (Apps Script)
-  fetch("https://script.google.com/macros/s/AKfycbzrSEej5Su2a5wXiYzkuL3Xn8fDXrGt7T4aZbqsc0lNkxyagXjBoixaKEwaVUsq8nPrBg/exec", {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({name, phone})
+    // colectăm datele
+    const formData = new FormData(form);
+    const name = formData.get("name");
+    const phone = formData.get("phone");
+    const tickets = formData.get("tickets");
+
+    // aici vom integra Stripe mai târziu
+    message.innerHTML = `Thanks ${name}! Your entry for ${tickets} ticket(s) is recorded. Payment will be processed here once Stripe is connected.`;
+
+    // reset formular
+    form.reset();
+
+    // FUTURE: redirecționare către Stripe Checkout
+    // window.location.href = "YOUR_STRIPE_PAYMENT_LINK_HERE";
   });
-
-  alert('Datele tale au fost trimise!');
-
-  // Redirect către plata cu Stripe
-  window.location.href = '#checkout-button';
-});
-
-// Stripe Checkout (doar placeholder)
-const stripe = Stripe('YOUR_PUBLISHABLE_KEY');
-const checkoutButton = document.getElementById('checkout-button');
-checkoutButton.addEventListener('click', () => {
-  stripe.redirectToCheckout({
-    lineItems: [{price: 'YOUR_PRICE_ID', quantity: 1}],
-    mode: 'payment',
-    successUrl: window.location.origin + '/success.html',
-    cancelUrl: window.location.origin + '/pay-entry.html',
-  }).then((result) => {
-    if (result.error) {
-      alert(result.error.message);
-    }
-  });
-});
 </script>
 
 </body>
