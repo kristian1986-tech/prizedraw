@@ -57,7 +57,7 @@ form.addEventListener("submit", async function(e) {
     // 1️⃣ Trimite datele către Google Apps Script
     const response = await fetch("https://script.google.com/macros/s/AKfycbz19ON6Itsa-7c7S2TITbXe54vRJe5HByHFNJOJo8M9aLeptj1jZk7c0TDzS0iS_iDtJQ/exec", { 
       method: "POST",
-      body: JSON.stringify({ name,telefon,date, tickets }),
+      body: JSON.stringify({ name,telefon,date,tickets }),
       headers: { "Content-Type": "application/json" }
     });
 
