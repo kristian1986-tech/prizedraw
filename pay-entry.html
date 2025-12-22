@@ -40,35 +40,52 @@
 <!-- Stripe JS -->
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  const form = document.getElementById("paidEntryForm");
-  const message = document.getElementById("message");
+const form = document.getElementById("paidEntryForm");
+const message = document.getElementById("message");
 
-  form.addEventListener("submit", async function(e) {
-    e.preventDefault();
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-    const formData = new FormData(form);
-    const name = formData.get("name");
-    const phone = formData.get("phone");
-    const tickets = formData.get("tickets");
+  const formData = new FormData(form);
+  const name = formData.get("name");
+  const phone = formData.get("phone");
+  const tickets = formData.get("tickets");
 
-    message.innerHTML = `Thanks ${name}! Redirecting to payment...`;
+  message.innerHTML = `Thanks ${name}! Saving your entry...`;
 
-    // 1️⃣ Inițializează Stripe
-    const stripe = Stripe("YOUR_PUBLISHABLE_KEY_HERE"); // cheie publică Stripe
-
-    // 2️⃣ Redirecționează la Checkout Session
-    // Înlocuiește cu sessionId generat în Stripe
-    stripe.redirectToCheckout({ 
-      sessionId: "YOUR_CHECKOUT_SESSION_ID_HERE" 
-    }).then(function(result) {
-      if(result.error){
-        message.innerHTML = `Error: ${result.error.message}`;
-      }
+  try {
+    // 1️⃣ Trimite datele către Google Apps Script
+    const response = await fetch("https://script.google.com/macros/s/AKfycbzrSEej5Su2a5wXiYzkuL3Xn8fDXrGt7T4aZbqsc0lNkxyagXjBoixaKEwaVUsq8nPrBg/exec", { 
+      method: "POST",
+      body: JSON.stringify({ name, phone, tickets }),
+      headers: { "Content-Type": "application/json" }
     });
 
-    // 3️⃣ Reset formular
-    form.reset();
-  });
+    const result = await response.json();
+
+    if(result.status === "success") {
+      message.innerHTML = `Entry saved! Redirecting to payment...`;
+
+      // 2️⃣ Inițializează Stripe și redirecționează la Checkout
+      const stripe = Stripe("YOUR_PUBLISHABLE_KEY_HERE"); // cheie publică Stripe
+      stripe.redirectToCheckout({
+        sessionId: "YOUR_CHECKOUT_SESSION_ID_HERE"
+      }).then(function(result) {
+        if(result.error){
+          message.innerHTML = `Error: ${result.error.message}`;
+        }
+      });
+
+      // 3️⃣ Resetează formularul
+      form.reset();
+    } else {
+      message.innerHTML = "Error saving entry. Please try again.";
+    }
+  } catch (error) {
+    console.error(error);
+    message.innerHTML = "Error connecting to server. Please try again.";
+  }
+});
 </script>
 
 </body>
