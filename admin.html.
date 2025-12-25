@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin - Prize Draw</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f2f2f2; margin:0; padding:0; text-align:center;}
+  .container { max-width:800px; margin:50px auto; background:#fff; padding:30px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+  h1 { margin-bottom:20px; }
+  #loginDiv, #adminDiv { display:none; }
+  input[type=password] { padding:10px; width:200px; font-size:16px; margin-bottom:10px; }
+  button { padding:10px 20px; font-size:16px; margin:5px; border:none; border-radius:5px; background:#0070f3; color:#fff; cursor:pointer; }
+  button:hover { background:#005bb5; }
+  table { width:100%; border-collapse: collapse; margin-top:20px; }
+  th, td { border:1px solid #ccc; padding:10px; text-align:center; }
+  th { background:#0070f3; color:#fff; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Admin Panel</h1>
+
+  <div id="loginDiv">
+    <p>Enter password to access admin panel:</p>
+    <input type="password" id="adminPass" placeholder="Password">
+    <br>
+    <button onclick="checkPassword()">Login</button>
+    <p id="loginMsg" style="color:red;"></p>
+  </div>
+
+  <div id="adminDiv">
+    <button onclick="logout()">Logout</button>
+    <button onclick="exportCSV()">Export CSV</button>
+    <table id="participantsTable">
+      <thead>
+        <tr><th>Name</th><th>Phone</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        <!-- Entries will appear here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // === CONFIG ===
+  const PASSWORD = "admin123"; // Schimbă aici parola
+  const SHEET_URL = "https://script.google.com/macros/s/URL_TAU/exec?admin=true"; // URL Apps Script cu parametru admin
+
+  const loginDiv = document.getElementById("loginDiv");
+  const adminDiv = document.getElementById("adminDiv");
+  const loginMsg = document.getElementById("loginMsg");
+  const tableBody = document.querySelector("#participantsTable tbody");
+
+  // Arată login la început
+  loginDiv.style.display = "block";
+
+  function checkPassword() {
+    const val = document.getElementById("adminPass").value;
+    if(val === PASSWORD){
+      loginDiv.style.display = "none";
+      adminDiv.style.display = "block";
+      loadParticipants();
+    } else {
+      loginMsg.textContent = "Incorrect password!";
+    }
+  }
+
+  function logout() {
+    adminDiv.style.display = "none";
+    loginDiv.style.display = "block";
+    document.getElementById("adminPass").value = "";
+    tableBody.innerHTML = "";
+  }
+
+  function loadParticipants() {
+    fetch(SHEET_URL)
+      .then(resp => resp.json())
+      .then(data => {
+        tableBody.innerHTML = "";
+        data.forEach(entry => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${entry.name}</td><td>${entry.phone}</td><td>${entry.date}</td>`;
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(err => alert("Error loading participants: " + err));
+  }
+
+  function exportCSV() {
+    let csv = "Name,Phone,Date\n";
+    tableBody.querySelectorAll("tr").forEach(row => {
+      const cols = row.querySelectorAll("td");
+      csv += `${cols[0].textContent},${cols[1].textContent},${cols[2].textContent}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "participants.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+
+</body>
+</html>
