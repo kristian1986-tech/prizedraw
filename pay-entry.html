@@ -2,130 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Paid Entry</title>
-
+  <title>Paid Entry - Prize Draw</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f7f7f7;
       margin: 0;
       padding: 0;
+      text-align: center;
     }
 
     .container {
       max-width: 800px;
-      margin: 60px auto;
+      margin: 40px auto;
       background: #ffffff;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      text-align: center;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    h1 {
+    h1, h2 {
       color: #222;
-      margin-bottom: 20px;
     }
 
     p {
-      font-size: 18px;
       color: #444;
+      line-height: 1.6;
     }
 
-    form {
-      margin-top: 30px;
+    /* FORM STYLING */
+    #payForm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 400px;
+      margin: 20px auto;
     }
 
-    input {
-      width: 80%;
+    #payForm input {
+      width: 100%;
       padding: 12px;
-      margin: 10px 0;
+      margin: 8px 0;
       font-size: 16px;
-      border-radius: 6px;
+      border-radius: 5px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
-    button {
-      padding: 14px 30px;
+    #payForm button {
+      padding: 12px 25px;
       font-size: 18px;
-      background: #0070f3;
+      background-color: #0070f3;
       color: #fff;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: 15px;
+      transition: background 0.3s;
+      margin-top: 10px;
     }
 
-    button:hover {
-      background: #005bb5;
+    #payForm button:hover {
+      background-color: #005bb5;
     }
 
-    /* 🔹 MESAJ CENTRAT */
-    #pay-message {
+    #msg {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 600;
+      color: green;
       display: none;
-      margin-top: 40px;
-      padding: 25px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #0070f3;
-      background: #f0f8ff;
-      border: 2px solid #0070f3;
-      border-radius: 10px;
     }
+
+    /* LANGUAGE SELECTOR STYLING (optional) */
+    #langSelector {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
   </style>
 </head>
-
 <body>
+  <div class="container">
+    <h1>Paid Entry</h1>
+    <p>Enter your details below to participate in the Prize Draw. Your chance to win is the same as for free entries.</p>
 
-<div class="container">
-  <h1>Paid Entry</h1>
-  <p>Complete the form below and proceed with payment.</p>
+    <!-- FORMULAR PLATE -->
+    <form id="payForm">
+      <input type="text" name="name" placeholder="Full Name" required>
+      <input type="tel" name="phone" placeholder="Phone Number" required>
+      <button type="submit">Pay Now</button>
+    </form>
 
-  <!-- FORMULAR (NU AFECTEAZĂ SHEET-UL) -->
-  <form id="payForm">
-    <input type="text" name="name" placeholder="Full Name" required>
-    <input type="tel" name="phone" placeholder="Phone Number" required>
+    <div id="msg"></div>
 
-    <button type="submit">Pay Now</button>
-  </form>
-
-  <!-- MESAJUL -->
-  <div id="pay-message">
-    ✅ Entry received successfully!  
-    <br>We will contact you if you win.
+    <!-- Language selector example -->
+    <select id="langSelector">
+      <option value="en">English</option>
+      <option value="ro">Română</option>
+      <option value="cz">Čeština</option>
+      <option value="de">Deutsch</option>
+    </select>
   </div>
-</div>
 
-<script>
-const form = document.getElementById("payForm");
-const message = document.getElementById("pay-message");
+  <!-- JS: submit + reset + Google Sheet connection -->
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbw-UM8_ad79f2OegSGBQoSenWCbyfiPRrWzJ9rciNpN9DlVHnGel2l6MGo4gH5NZ4JNpg/exec"; // pune aici URL-ul tău
+    const form = document.getElementById("payForm");
+    const msg = document.getElementById("msg");
 
-/* 🔴 AICI PUI URL-UL TĂU REAL DE LA GOOGLE SCRIPT */
-const scriptURL = "https://script.google.com/macros/s/AKfycbwSw15KTfLaejhSSpdjKyjAJlAuYWkTLLOzdHWq1_I8FYMguyERQnRQrQhXaqcYU_o6mA/exec";
+    form.addEventListener("submit", e => {
+      e.preventDefault();
 
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
+      fetch(scriptURL, { method: "POST", body: new FormData(form) })
+        .then(() => {
+          msg.innerHTML = "✅ Entry received successfully!<br>We will contact you if you win.";
+          msg.style.display = "block";
+          form.reset(); // curăță câmpurile
+          setTimeout(() => { msg.style.display = "none"; }, 4000);
+        })
+        .catch(() => {
+          msg.innerHTML = "❌ Error submitting entry. Please try again.";
+          msg.style.display = "block";
+        });
+    });
 
-  const formData = new FormData(form);
-
-  fetch(scriptURL, {
-    method: "POST",
-    body: formData
-  })
-  .then(response => {
-    if (response.ok) {
-      form.reset();                 // ✅ reset formular;
-      message.style.display = "block"; // afișează mesajul centrat
-    } else {
-      alert("Error submitting entry. Please try again.");
-    }
-  })
-  .catch(error => {
-    alert("Connection error. Please try again.");
-    console.error(error);
-  });
-});
-</script>
-
+    // optional: Language selector logic (dacă vrei să faci schimbarea limbii)
+    const selector = document.getElementById("langSelector");
+    selector.addEventListener("change", (e) => {
+      const lang = e.target.value;
+      // logica pentru schimbarea limbii se poate adăuga aici
+      alert("Language switched to: " + lang); 
+    });
+  </script>
 </body>
 </html>
