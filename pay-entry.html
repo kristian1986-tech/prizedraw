@@ -97,19 +97,35 @@
 </div>
 
 <script>
-  const form = document.getElementById("payForm");
-  const message = document.getElementById("pay-message");
+const form = document.getElementById("payForm");
+const message = document.getElementById("pay-message");
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
+/* 🔴 AICI PUI URL-UL TĂU REAL DE LA GOOGLE SCRIPT */
+const scriptURL = "https://script.google.com/macros/s/XXXXXXXXXXXX/exec";
 
-    // 🔹 AICI rămâne exact cum este conexiunea ta către Google Sheet
-    // NU modificăm nimic la fetch / script URL
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
 
-    // SIMULARE succes (vizual)
-    form.style.display = "none";
-    message.style.display = "block";
+  const formData = new FormData(form);
+
+  fetch(scriptURL, {
+    method: "POST",
+    body: formData
+  })
+  .then(response => {
+    if (response.ok) {
+      form.reset();                 // ✅ reset formular
+      form.style.display = "none";  // ascunde formularul
+      message.style.display = "block"; // afișează mesajul centrat
+    } else {
+      alert("Error submitting entry. Please try again.");
+    }
+  })
+  .catch(error => {
+    alert("Connection error. Please try again.");
+    console.error(error);
   });
+});
 </script>
 
 </body>
