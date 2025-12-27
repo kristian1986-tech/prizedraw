@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const form = document.getElementById("entry-form");
   const message = document.getElementById("message");
   const soldOut = document.getElementById("sold-out");
-  const maxParticipants = 5000; // schimbi limita aici
+  const maxParticipants = 2; // schimbi limita aici
   const countEl = document.getElementById("current-count");
 
   let currentParticipants = parseInt(countEl.textContent) || 0;
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // trimite datele catre Google Script (pastrezi fetch-ul tau original)
-    fetch("YOUR_SCRIPT_URL_HERE", { 
+    fetch("https://script.google.com/macros/s/AKfycbztxoIyAW2HLdUlUys3YkxfHGe4U_tswDUC31nI1ttnrwxqO7mg70VyWqe9hE7qyaynEA/exec", { 
       method: "POST", 
       body: new FormData(form) 
     })
