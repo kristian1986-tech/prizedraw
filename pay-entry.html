@@ -9,7 +9,7 @@
   </div>
 
   <!-- Formular -->
-  <form id="paidForm" style="display:none;">
+  <form id="paidForm">
     <input type="text" name="name" placeholder="Name" required>
     <input type="text" name="phone" placeholder="Phone" required>
     <button type="submit" id="payBtn" class="button">Pay Now</button>
@@ -88,20 +88,19 @@ const successMsg = document.getElementById("successMsg");
 const closedBox = document.getElementById("closedBox");
 const payBtn = document.getElementById("payBtn");
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbzEPduvG90nxEGBkTQAfit-ssWT01NgBaARnWumgaFHRubHzjU79wo_-kyGIZFrDkW9/exec";
+// URL-ul tău de script
+const scriptURL = "https://script.google.com/macros/s/AKfycbwk-dy3fhThpHGvea0yN2CxCu1cDJcR0aiXADW38Lg6ocT0NraxZngSv-J0jRIL2vyu/exec";
 
 /* 🔍 VERIFICARE STATUS LA ÎNCĂRCARE PAGINĂ */
 window.addEventListener("DOMContentLoaded", () => {
   fetch(scriptURL)
     .then(res => res.json())
     .then(data => {
-    if (data.status === "closed") {
-  form.style.display = "none";
-  successMsg.style.display = "none";
-  closedBox.style.display = "block";
-} else {
-  form.style.display = "block";   // ⬅️ doar dacă e OPEN
-    }
+      if (data.status === "closed") {
+        form.style.display = "none";
+        successMsg.style.display = "none";
+        closedBox.style.display = "block";
+      }
     })
     .catch(err => console.error("Status check error", err));
 });
