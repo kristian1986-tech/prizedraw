@@ -97,14 +97,23 @@ form.addEventListener("submit", e => {
   fetch(scriptURL, { method: "POST", body: new FormData(form) })
     .then(response => response.json())
     .then(data => {
-      if(data.status === "ok"){
-        successMsg.textContent = "Entry received successfully! We will contact you if you win.";
-        form.reset();
-      } else if(data.status === "closed"){
-        form.style.display = "none";
-        closedBox.style.display = "block";
-      }
-    })
+
+  // 🔒 COMPETIȚIE ÎNCHISĂ
+  if (data.status === "closed") {
+    successMsg.style.display = "none";   // ⬅️ IMPORTANT
+    form.style.display = "none";
+    closedBox.style.display = "block";
+    return;
+  }
+
+  // ✅ ÎNSCRIERE REUȘITĂ
+  if (data.status === "ok") {
+    successMsg.textContent = "Entry received successfully! We will contact you if you win.";
+    successMsg.style.display = "block";  // ⬅️ ASIGURĂ AFIȘAREA
+    form.reset();
+  }
+
+})
     .catch(error => console.error("Error!", error.message));
 });
 </script>
