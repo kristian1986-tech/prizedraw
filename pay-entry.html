@@ -116,4 +116,20 @@ form.addEventListener("submit", e => {
 })
     .catch(error => console.error("Error!", error.message));
 });
+</script> 
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbzEPduvG90nxEGBkTQAfit-ssWT01NgBaARnWumgaFHRubHzjU79wo_-kyGIZFrDkW9/exec";
+
+window.addEventListener("DOMContentLoaded", () => {
+  fetch(scriptURL)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "closed") {
+        document.getElementById("entryForm").style.display = "none";
+        document.getElementById("successMsg").style.display = "none";
+        document.getElementById("closedBox").style.display = "block";
+      }
+    })
+    .catch(err => console.error("Status check error", err));
+});
 </script>
