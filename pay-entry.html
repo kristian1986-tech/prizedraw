@@ -9,7 +9,7 @@
   </div>
 
   <!-- Formular -->
-  <form id="paidForm">
+  <form id="paidForm" style="display:none;">
     <input type="text" name="name" placeholder="Name" required>
     <input type="text" name="phone" placeholder="Phone" required>
     <button type="submit" id="payBtn" class="button">Pay Now</button>
@@ -95,11 +95,13 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch(scriptURL)
     .then(res => res.json())
     .then(data => {
-      if (data.status === "closed") {
-        form.style.display = "none";
-        successMsg.style.display = "none";
-        closedBox.style.display = "block";
-      }
+    if (data.status === "closed") {
+  form.style.display = "none";
+  successMsg.style.display = "none";
+  closedBox.style.display = "block";
+} else {
+  form.style.display = "block";   // ⬅️ doar dacă e OPEN
+    }
     })
     .catch(err => console.error("Status check error", err));
 });
