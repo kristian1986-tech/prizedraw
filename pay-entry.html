@@ -1,6 +1,9 @@
 <div class="container">
   <h1>Paid Entry</h1>
 
+  <!-- Număr participanți -->
+  <p id="currentParticipants" class="participants-count">Current participants: 0</p>
+
   <!-- Box care apare când competiția e închisă -->
   <div id="closedBox" class="closed-box">
     <h2>Entries are closed</h2>
@@ -80,6 +83,12 @@ input[type="text"] {
   font-weight: bold;
   margin-top: 20px;
 }
+
+.participants-count {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 </style>
 
 <script>
@@ -87,6 +96,7 @@ const form = document.getElementById("paidForm");
 const successMsg = document.getElementById("successMsg");
 const closedBox = document.getElementById("closedBox");
 const payBtn = document.getElementById("payBtn");
+const currentParticipants = document.getElementById("currentParticipants");
 
 // URL-ul tău de script
 const scriptURL = "https://script.google.com/macros/s/AKfycbwk-dy3fhThpHGvea0yN2CxCu1cDJcR0aiXADW38Lg6ocT0NraxZngSv-J0jRIL2vyu/exec";
@@ -96,6 +106,12 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch(scriptURL)
     .then(res => res.json())
     .then(data => {
+      // Afișează numărul curent de participanți
+      if(data.currentParticipants !== undefined){
+        currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+      }
+
+      // Verifică dacă competiția e închisă
       if (data.status === "closed") {
         form.style.display = "none";
         successMsg.style.display = "none";
@@ -126,6 +142,11 @@ form.addEventListener("submit", e => {
         successMsg.textContent = "Entry received successfully! We will contact you if you win.";
         successMsg.style.display = "block";
         form.reset();
+
+        // Actualizează numărul curent de participanți
+        if(data.currentParticipants !== undefined){
+          currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+        }
       }
 
     })
