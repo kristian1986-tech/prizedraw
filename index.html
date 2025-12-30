@@ -155,5 +155,67 @@
   <!-- Rândul 3: Copyright -->
   <div style="color: #555;">© 2025 Prize Draw Competition – All rights reserved</div>
  </footer>
+  <!-- COOKIE BANNER -->
+<style>
+  #cookieBanner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f7f7f7;
+    color: #222;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    max-width: 600px;
+    text-align: center;
+    display: none;
+    z-index: 9999;
+  }
+
+  #cookieBanner button {
+    margin-left: 15px;
+    background: #0070f3;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+
+  #cookieBanner button:hover {
+    background: #005bb5;
+  }
+
+  #cookieBanner a {
+    color: #0070f3;
+    text-decoration: underline;
+  }
+</style>
+
+<div id="cookieBanner">
+  We use cookies to improve your experience. By continuing, you agree to our 
+  <a href="cookie.html" target="_blank">Cookie Policy</a> and 
+  <a href="privacy.html" target="_blank">Privacy Policy</a>.
+  <button id="acceptCookies">Accept</button>
+</div>
+
+<script>
+  // Verificăm dacă utilizatorul a acceptat deja
+  if(!localStorage.getItem('cookiesAccepted')) {
+    document.getElementById('cookieBanner').style.display = 'block';
+  }
+
+  // Când apăsăm butonul "Accept"
+  document.getElementById('acceptCookies').addEventListener('click', function() {
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookieBanner').style.display = 'none';
+  });
+</script>
+  
 </body>
 </html>
