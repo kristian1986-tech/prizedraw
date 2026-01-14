@@ -13,19 +13,26 @@
     h2{margin-top:0}
     ul{line-height:1.6}
     .card{background:#fff;border-radius:10px;padding:25px;margin-bottom:30px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-    .buttons{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:30px 0}
-    .button{display:inline-block;padding:12px 25px;margin:10px;background:#0070f3;color:#fff;border-radius:5px;text-decoration:none;font-weight:bold;font-size:16px;transition:background 0.3s}
-    .button:hover{background:#005bb5}
-    .button-container{text-align:center;margin-top:20px}
-    .btn{padding:15px 25px;border-radius:8px;text-decoration:none;font-weight:bold}
-    .paid{background:#0a7cff;color:#fff}
-    .free{background:#2ecc71;color:#fff}
+    .button, .wise-button {
+      display: inline-block;
+      padding: 12px 25px;
+      margin: 10px;
+      background: #0070f3;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .button:hover, .wise-button:hover { background: #005bb5; }
+    .button-container { text-align: center; margin-top: 20px; }
+    .payments-info { text-align:center; margin-top:30px; font-size:16px; color:#0070f3; }
     footer{background:#111;color:#fff;text-align:center;padding:20px;font-size:14px}
-    .payment-logos{margin-top:30px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
-    .payment-logos img{height:28px;opacity:0.85}
-    .payments-info{ text-align:center; margin-top:30px; font-size:16px; color:#0070f3;}
   </style>
 </head>
+
 <body>
 
 <header>
@@ -36,6 +43,7 @@
 </header>
 
 <section>
+
   <div class="card">
     <h2>🎁 Current Prize</h2>
     <p>Win the prize as described on this page and in the Terms & Conditions. All entries are included in a fair random draw.</p>
@@ -46,10 +54,9 @@
   <div class="buttons">
     <div class="button-container">
       <a href="free-entry.html" class="button">Free Entry</a>
-      <!-- Buton Wise mare -->
-      <a href="https://wise.com/pay/me/cristiann268" target="_blank" class="button paid">Pay with Wise</a>
+      <a class="wise-button" id="wiseButton">Pay with Wise</a>
       <p>🔒 Secure entry • Live draw • UK based</p>
-      <img src="https://i.ibb.co/QF9kzv6/wise-qr.png" alt="QR Wise" style="margin-top:15px; max-width:200px;">
+      <img src="your-qr-code.png" alt="Wise QR Code" style="margin-top:10px; max-width:200px;">
     </div>
   </div>
 
@@ -66,6 +73,25 @@
   </div>
 
   <div class="card">
+    <h2>Free Entry – Worldwide (Postal Entry)</h2>
+    <a href="free-entry.html" class="button">Enter for Free</a>
+    <p>Participants from any country can enter for free by post.</p>
+    <ul>
+      <li>Print and complete the Free Entry form</li>
+      <li>Send it by postal mail</li>
+      <li>No purchase required</li>
+    </ul>
+    <p><strong>Postal Address:</strong><br>
+      EasyWin Prize Draw<br>
+      5 Brayford Square<br>
+      London<br>
+      E1 0SG<br>
+      United Kingdom
+    </p>
+    <p><strong>Deadline:</strong> Entries must be received before the draw date.</p>
+  </div>
+
+  <div class="card">
     <h2>📩 Contact</h2>
     <p>Email: easywin.prizedraw@gmail.com</p>
     <p>Company: EasyWin Prize Draw (Sole Trader) (UK)</p>
@@ -77,48 +103,52 @@
   </div>
 
   <div class="payments-info">
-    <p>Secure payments with Visa and Mastercard</p>
+    <p>Secure payments with Visa and Mastercard (Wise included)</p>
     <p>Identity verified • Business details provided</p>
-  </div>
-
-  <!-- Formularul de salvare in Google Sheet -->
-  <div class="card">
-    <h2>Enter your details</h2>
-    <form id="wiseForm">
-      <input type="text" name="Name" placeholder="Name" required style="width:100%;padding:10px;margin-bottom:10px;">
-      <input type="text" name="Phone" placeholder="Phone" required style="width:100%;padding:10px;margin-bottom:10px;">
-      <input type="date" name="Date" required style="width:100%;padding:10px;margin-bottom:10px;">
-      <button type="submit" class="button paid">Submit</button>
-    </form>
-    <p id="formMessage" style="color:green; margin-top:10px;"></p>
   </div>
 
 </section>
 
-<footer style="text-align: center; font-size: 14px; line-height: 1.5; padding: 20px 10px;">
-  <div style="margin-bottom: 5px;">
+<footer>
+  <div>
     <a href="disclaimer.html" style="margin-right: 15px; color: #0070f3; text-decoration: none;">Disclaimer</a>
     <a href="cookie.html" style="color: #0070f3; text-decoration: none;">Cookie Policy</a>
   </div>
-  <div style="margin-bottom: 5px;">
+  <div>
     <a href="privacy.html" style="margin-right: 15px; color: #0070f3; text-decoration: none;">Privacy Policy</a>
     <a href="terms.html" style="color: #0070f3; text-decoration: none;">Terms & Conditions</a>
   </div>
   <div style="color: #555;">© 2025 Prize Draw Competition – All rights reserved</div>
 </footer>
 
-<!-- Formular Google Sheets script -->
 <script>
-const scriptURL = '<<INSERT_ID_SCRIPT_GOOGLE_SHEET_AICI>>';
-const form = document.forms['wiseForm'];
-const msg = document.getElementById('formMessage');
+  // Cookie banner
+  if(!localStorage.getItem('cookiesAccepted')) {
+    document.getElementById('cookieBanner').style.display = 'block';
+  }
+  document.getElementById('acceptCookies').addEventListener('click', function() {
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookieBanner').style.display = 'none';
+  });
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-    .then(response => { msg.innerText = 'Entry submitted!'; form.reset(); })
-    .catch(error => { msg.innerText = 'Submission failed, try again.'; });
-});
+  // Wise button link
+  document.getElementById('wiseButton').addEventListener('click', function() {
+    // Redirecționează către contul Wise
+    window.location.href = "https://wise.com/pay/me/cristiann268";
+
+    // Trimite datele în Google Sheet
+    var name = prompt("Enter your name:");
+    var phone = prompt("Enter your phone number:");
+    var date = new Date().toLocaleDateString();
+
+    var url = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+    url += "?Name=" + encodeURIComponent(name) + "&Phone=" + encodeURIComponent(phone) + "&Date=" + encodeURIComponent(date);
+
+    fetch(url)
+      .then(response => response.text())
+      .then(data => console.log("Saved to sheet:", data))
+      .catch(err => console.error("Error saving to sheet:", err));
+  });
 </script>
 
 </body>
