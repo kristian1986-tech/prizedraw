@@ -1,72 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Paid Entry</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-.container {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-input[type="text"] {
-  width: 80%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-.button {
-  padding: 12px 25px;
-  background: #0070f3;
-  color: #fff;
-  border-radius: 5px;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-}
-.button:disabled {
-  opacity: 0.6;
-}
-.closed-box {
-  display: none;
-  padding: 40px;
-  background: #f7f7f7;
-  border-radius: 10px;
-}
-.success-msg {
-  color: green;
-  font-weight: bold;
-  margin-top: 20px;
-}
-.participants-count {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paid Entry – EasyWin Prize Draw</title>
+  <style>
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 25px;
+      margin-top: 10px;
+      background: #0070f3;
+      color: #fff;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .button:hover { background: #005bb5; }
+    .closed-box {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      margin-top: 20px;
+      background: #f7f7f7;
+      border-radius: 10px;
+    }
+    .closed-box h2 { font-size: 28px; margin-bottom: 10px; }
+    .closed-box p { font-size: 18px; color: #444; }
+    .success-msg { color: green; font-weight: bold; margin-top: 20px; }
+    .participants-count { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+  </style>
 </head>
-
 <body>
 
 <div class="container">
   <h1>Paid Entry</h1>
-
-  <p id="currentParticipants" class="participants-count">
-    Current participants: loading...
-  </p>
+  <p id="currentParticipants" class="participants-count">Current participants: 0</p>
 
   <div id="closedBox" class="closed-box">
     <h2>Entries are closed</h2>
     <p>This competition is sold out.</p>
+    <p>A new competition is coming soon</p>
   </div>
 
   <form id="paidForm">
@@ -79,65 +71,82 @@ input[type="text"] {
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
-
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+const form = document.getElementById("paidForm");
+const successMsg = document.getElementById("successMsg");
+const closedBox = document.getElementById("closedBox");
+const currentParticipants = document.getElementById("currentParticipants");
 
-  const form = document.getElementById("paidForm");
-  const successMsg = document.getElementById("successMsg");
-  const closedBox = document.getElementById("closedBox");
-  const payBtn = document.getElementById("payBtn");
-  const currentParticipants = document.getElementById("currentParticipants");
+// Public Key Stripe Sandbox
+const stripe = Stripe('pk_test_51SpsG3Rcb8bsNOMZ8uNemlKu3MfIS4RnkpccxNH97acZamvdNnYDAFATNTRTVOYx2R8kAG0VAOqnQ8ViDJVXz1GQ002V0SHibZ');
 
-  const stripe = Stripe("pk_test_51SpsG3Rcb8bsNOMZ8uNemlKu3MfIS4RnkpccxNH97acZamvdNnYDAFATNTRTVOYx2R8kAG0VAOqnQ8ViDJVXz1GQ002V0SHibZ");
+// Google Apps Script URL (sheet)
+const scriptURL = "https://script.google.com/macros/s/AKfycbyG_6avznGYhLENF-NrKBUFxVftIxjOP0qH3mNh_Ev-0XxC7FWrrDfEN7R2pxjWkA0dnw/exec";
 
-  const scriptURL = "https://script.google.com/macros/s/AKfycbybgXJmfL4Fwj7gCMypxZQwA9ZLe8lq8qxlpuJcxE7tevSF0cRWr7KO4L4SAMSfFhYP/exec";
+// Preț per intrare (2.3 EUR)
+const entryAmount = 2.3;
 
-  const entryAmount = 2.3;
-
-  // 🔍 Status
+// La încărcarea paginii: verifică număr participanți și status
+window.addEventListener("DOMContentLoaded", () => {
   fetch(scriptURL)
-    .then(r => r.json())
+    .then(res => res.json())
     .then(data => {
-      currentParticipants.textContent =
-        `Current participants: ${data.currentParticipants || 0}`;
-
-      if (data.status === "closed") {
+      if(data.currentParticipants !== undefined){
+        currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+      }
+      if(data.status === "closed"){
         form.style.display = "none";
+        successMsg.style.display = "none";
         closedBox.style.display = "block";
       }
-    });
-
-  // 💳 Pay
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-
-    payBtn.disabled = true;
-    payBtn.textContent = "Processing...";
-
-    fetch(scriptURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: form.name.value,
-        phone: form.phone.value,
-        amount: entryAmount
-      })
     })
-    .then(r => r.json())
+    .catch(err => console.error("Status check error", err));
+});
+
+// La trimiterea formularului
+form.addEventListener("submit", e => {
+  e.preventDefault();
+
+  const name = form.name.value.trim();
+  const phone = form.phone.value.trim();
+
+  // Trimite nume + telefon la Google Sheet pentru status
+  fetch(scriptURL, { method: "POST", body: new FormData(form) })
+    .then(response => response.json())
     .then(data => {
-      if (!data.sessionId) throw "No session";
-      return stripe.redirectToCheckout({ sessionId: data.sessionId });
-    })
-    .catch(() => {
-      successMsg.textContent = "Payment error. Try again.";
-      payBtn.disabled = false;
-      payBtn.textContent = "Pay Now";
-    });
-  });
+      if(data.status === "closed"){
+        form.style.display = "none";
+        successMsg.style.display = "none";
+        closedBox.style.display = "block";
+        return;
+      }
 
+      if(data.status === "ok"){
+        successMsg.textContent = "Entry received successfully! Redirecting to payment...";
+        successMsg.style.display = "block";
+
+        // Redirecționează către Stripe Sandbox Checkout
+        fetch("https://your-backend.com/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, amount: entryAmount })
+        })
+        .then(res => res.json())
+        .then(session => {
+          stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .catch(err => {
+          console.error("Stripe checkout error", err);
+          successMsg.textContent = "Payment error. Try again.";
+        });
+      }
+
+      if(data.currentParticipants !== undefined){
+        currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+      }
+    })
+    .catch(err => console.error("Error!", err.message));
 });
 </script>
-
 </body>
 </html>
