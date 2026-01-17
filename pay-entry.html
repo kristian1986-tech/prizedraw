@@ -1,62 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Paid Entry – EasyWin Prize Draw</title>
-  <style>
-    .container {
-      max-width: 500px;
-      margin: 50px auto;
-      padding: 30px;
-      background: #fff;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    input[type="text"] {
-      width: 80%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 12px 25px;
-      margin-top: 10px;
-      background: #0070f3;
-      color: #fff;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .button:hover { background: #005bb5; }
-
-    .closed-box {
-      display: none;
-      text-align: center;
-      padding: 40px;
-      margin-top: 20px;
-      background: #f7f7f7;
-      border-radius: 10px;
-    }
-
-    .closed-box h2 { font-size: 28px; margin-bottom: 10px; }
-    .closed-box p { font-size: 18px; color: #444; }
-
-    .success-msg { color: green; font-weight: bold; margin-top: 20px; }
-    .participants-count { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paid Entry – EasyWin Prize Draw</title>
+<style>
+.container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+input[type="text"] {
+  width: 80%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+.button {
+  display: inline-block;
+  padding: 12px 25px;
+  margin-top: 10px;
+  background: #0070f3;
+  color: #fff;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.button:hover { background: #005bb5; }
+.closed-box {
+  display: none;
+  text-align: center;
+  padding: 40px;
+  margin-top: 20px;
+  background: #f7f7f7;
+  border-radius: 10px;
+}
+.closed-box h2 { font-size: 28px; margin-bottom: 10px; }
+.closed-box p { font-size: 18px; color: #444; }
+.success-msg { color: green; font-weight: bold; margin-top: 20px; }
+.participants-count { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+</style>
 </head>
-
 <body>
+
 <div class="container">
   <h1>Paid Entry</h1>
 
@@ -79,83 +73,82 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  const form = document.getElementById("paidForm");
-  const successMsg = document.getElementById("successMsg");
-  const closedBox = document.getElementById("closedBox");
-  const currentParticipants = document.getElementById("currentParticipants");
+const form = document.getElementById("paidForm");
+const successMsg = document.getElementById("successMsg");
+const closedBox = document.getElementById("closedBox");
+const currentParticipants = document.getElementById("currentParticipants");
 
-  // Sandbox Public Key Stripe (poți schimba cu Live Key când e gata)
-  const stripe = Stripe('pk_test_51SpsG3Rcb8bsNOMZ8uNemlKu3MfIS4RnkpccxNH97acZamvdNnYDAFATNTRTVOYx2R8kAG0VAOqnQ8ViDJVXz1GQ002V0SHibZ');
+// Stripe sandbox public key
+const stripe = Stripe('pk_test_51SpsG3Rcb8bsNOMZ8uNemlKu3MfIS4RnkpccxNH97acZamvdNnYDAFATNTRTVOYx2R8kAG0VAOqnQ8ViDJVXz1GQ002V0SHibZ');
 
-  // URL-ul Apps Script actual
-  const scriptURL = "https://script.google.com/macros/s/AKfycbzPdarJwiGUrnQgD96fTbN554A0A_9scTkj0kkcjLLIAipVLKyrKMhuKevd7baHyCRN/exec";
+// URL-ul tău Google Apps Script
+const scriptURL = "https://script.google.com/macros/s/AKfycbzPdarJwiGUrnQgD96fTbN554A0A_9scTkj0kkcjLLIAipVLKyrKMhuKevd7baHyCRN/exec";
 
-  const entryAmount = 2.3; // preț intrare EUR
+// Preț intrare
+const entryAmount = 2.3; // EUR
 
-  // La încărcare, verifică participanți + status
-  window.addEventListener("DOMContentLoaded", () => {
-    fetch(scriptURL)
-      .then(res => res.json())
-      .then(data => {
-        if (data.currentParticipants !== undefined) {
-          currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
-        }
-        if (data.status === "closed") {
-          form.style.display = "none";
-          successMsg.style.display = "none";
-          closedBox.style.display = "block";
-        }
-      })
-      .catch(err => console.error("Status check error", err));
-  });
+// La încărcarea paginii: verifică status + participanți
+window.addEventListener("DOMContentLoaded", () => {
+  fetch(scriptURL)
+    .then(res => res.json())
+    .then(data => {
+      if(data.currentParticipants !== undefined){
+        currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+      }
+      if(data.status === "closed"){
+        form.style.display = "none";
+        successMsg.style.display = "none";
+        closedBox.style.display = "block";
+      }
+    })
+    .catch(err => console.error("Status check error", err));
+});
 
-  form.addEventListener("submit", e => {
-    e.preventDefault();
+// Submit formular
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = form.name.value.trim();
+  const phone = form.phone.value.trim();
 
-    const name = form.name.value.trim();
-    const phone = form.phone.value.trim();
+  successMsg.textContent = "Saving your entry...";
+  successMsg.style.display = "block";
 
-    // Trimite date la Apps Script pentru salvare
-    fetch(scriptURL, { method: "POST", body: new FormData(form) })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "closed") {
-          form.style.display = "none";
-          successMsg.style.display = "none";
-          closedBox.style.display = "block";
-          return;
-        }
+  try {
+    // Trimite date la Apps Script
+    const res = await fetch(scriptURL, { method: "POST", body: new FormData(form) });
+    const data = await res.json();
 
-        // Afișare mesaj succes salvare participant
-        successMsg.textContent = "Entry saved! Preparing Stripe payment...";
-        successMsg.style.display = "block";
-        form.reset();
+    if(data.status === "closed"){
+      successMsg.style.display = "none";
+      form.style.display = "none";
+      closedBox.style.display = "block";
+      return;
+    }
 
-        if (data.currentParticipants !== undefined) {
-          currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
-        }
+    if(data.status === "ok"){
+      // Actualizează număr participanți
+      if(data.currentParticipants !== undefined){
+        currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+      }
 
-        // Stripe Checkout (sandbox)
-        fetch("https://your-backend.com/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, amount: entryAmount })
-        })
-        .then(res => res.json())
-        .then(session => {
-          stripe.redirectToCheckout({ sessionId: session.id });
-        })
-        .catch(err => {
-          console.error("Stripe checkout error", err);
-          successMsg.textContent = "Stripe payment simulated (sandbox) — no real payment taken.";
-        });
+      successMsg.textContent = "Entry saved! Preparing Stripe payment...";
 
-      })
-      .catch(err => {
-        console.error("Error!", err);
-        successMsg.textContent = "Payment error. Try again.";
-      });
-  });
+      // Simulare Stripe sandbox
+      setTimeout(() => {
+        successMsg.textContent = "Stripe checkout simulated (sandbox) — no real payment taken.";
+      }, 1000);
+
+      form.reset();
+    } else {
+      successMsg.textContent = "Error saving entry. Try again.";
+    }
+
+  } catch(err){
+    console.error("Error:", err);
+    successMsg.textContent = "Payment error. Try again.";
+  }
+});
 </script>
+
 </body>
 </html>
