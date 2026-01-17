@@ -1,64 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Paid Entry – EasyWin Prize Draw</title>
-  <style>
-    .container {
-      max-width: 500px;
-      margin: 50px auto;
-      padding: 30px;
-      background: #fff;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input[type="text"] {
-      width: 80%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    .button {
-      display: inline-block;
-      padding: 12px 25px;
-      margin-top: 10px;
-      background: #0070f3;
-      color: #fff;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .button:hover {
-      background: #005bb5;
-    }
-    .closed-box {
-      display: none;
-      text-align: center;
-      padding: 40px;
-      margin-top: 20px;
-      background: #f7f7f7;
-      border-radius: 10px;
-    }
-    .closed-box h2 { font-size: 28px; margin-bottom: 10px; }
-    .closed-box p { font-size: 18px; color: #444; }
-    .participants-count { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
-  </style>
-</head>
-<body>
 <div class="container">
   <h1>Paid Entry</h1>
-
   <p id="currentParticipants" class="participants-count">Current participants: 0</p>
 
   <div id="closedBox" class="closed-box">
     <h2>Entries are closed</h2>
-    <p>This competition is sold out.</p>
+    <p>This competition is sold out</p>
     <p>A new competition is coming soon</p>
   </div>
 
@@ -67,50 +13,53 @@
     <input type="text" name="phone" placeholder="Phone" required>
     <button type="submit" id="payBtn" class="button">Pay Now</button>
   </form>
+
+  <p id="successMsg" class="success-msg"></p>
 </div>
+
+<style>
+.container {max-width:500px;margin:50px auto;padding:30px;background:#fff;border-radius:10px;text-align:center;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+input[type="text"] {width:80%;padding:12px;margin:10px 0;border-radius:5px;border:1px solid #ccc;font-size:16px;}
+.button {display:inline-block;padding:12px 25px;margin-top:10px;background:#0070f3;color:#fff;border-radius:5px;font-weight:bold;font-size:16px;cursor:pointer;transition:background 0.3s;}
+.button:hover {background:#005bb5;}
+.closed-box {display:none;text-align:center;padding:40px;margin-top:20px;background:#f7f7f7;border-radius:10px;}
+.closed-box h2 {font-size:28px;margin-bottom:10px;}
+.closed-box p {font-size:18px;color:#444;}
+.success-msg {color:green;font-weight:bold;margin-top:20px;}
+.participants-count {font-size:18px;font-weight:bold;margin-bottom:20px;}
+</style>
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  // =====================================
-  // 🔹 MODIFICĂ DOAR CHEILE AICI
-  // =====================================
-  const STRIPE_PUBLIC_KEY = "pk_test_51SpsG3Rcb8bsNOMZ8uNemlKu3MfIS4RnkpccxNH97acZamvdNnYDAFATNTRTVOYx2R8kAG0VAOqnQ8ViDJVXz1GQ002V0SHibZ";
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGRiDCCOoYoVtJikolcI6oDoaq-vrWIe5uEGGUCo-ulNOMIPgQiifPxL1DhWcMbpyS/exec";
-  const stripe = Stripe(STRIPE_PUBLIC_KEY);
-  const form = document.getElementById("paidForm");
-  const currentParticipants = document.getElementById("currentParticipants");
-  const closedBox = document.getElementById("closedBox");
+const form = document.getElementById("paidForm");
+const successMsg = document.getElementById("successMsg");
+const closedBox = document.getElementById("closedBox");
+const currentParticipants = document.getElementById("currentParticipants");
 
-  // =====================================
-  // 🔹 VERIFICARE STATUS LA ÎNCĂRCARE PAGINĂ
-  // =====================================
-  window.addEventListener("DOMContentLoaded", () => {
-    fetch(SCRIPT_URL)
-      .then(res => res.json())
-      .then(data => {
-        if(data.currentParticipants !== undefined){
-          currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
-        }
-        if (data.status === "closed") {
-          form.style.display = "none";
-          closedBox.style.display = "block";
-        }
-      })
-      .catch(err => console.error("Status check error", err));
-  });
+// Stripe sandbox public key
+const stripe = Stripe('pk_test_51SpsG3Rcb8bsNOMZ8uNemlKu3MfIS4RnkpccxNH97acZamvdNnYDAFATNTRTVOYx2R8kAG0VAOqnQ8ViDJVXz1GQ002V0SHibZ');
 
-  // =====================================
-  // 🔹 TRIMITERE FORMULAR & STRIPE CHECKOUT
-  // =====================================
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    const name = form.name.value.trim();
-    const phone = form.phone.value.trim();
+// Google Apps Script URL
+const scriptURL = "https://script.google.com/macros/s/AKfycbyuZ0-W7FHmawG0LHXbgcMZfn93WSz5jlP7OlvhkdEz5zSe9XiystCoSP9Gu-dhiFV4/exec";
 
-    fetch(SCRIPT_URL, {
-      method: "POST",
-      body: new FormData(form)
-    })
+window.addEventListener("DOMContentLoaded", () => {
+  fetch(scriptURL)
+    .then(res => res.json())
+    .then(data => {
+      currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
+      if (data.status === "closed") {
+        form.style.display = "none";
+        closedBox.style.display = "block";
+      }
+    });
+});
+
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const name = form.name.value.trim();
+  const phone = form.phone.value.trim();
+
+  fetch(scriptURL, { method: "POST", body: new FormData(form) })
     .then(res => res.json())
     .then(data => {
       if (data.status === "closed") {
@@ -118,18 +67,17 @@
         closedBox.style.display = "block";
         return;
       }
-      if (data.status !== "ok" || !data.sessionId) {
-        alert("Error initializing payment. Try again.");
-        return;
+      if (data.status === "ok") {
+        successMsg.textContent = "Entry recorded successfully! Stripe Sandbox test ready.";
+        successMsg.style.display = "block";
+        form.reset();
+        currentParticipants.textContent = `Current participants: ${data.currentParticipants}`;
       }
-      // Redirect către Stripe Checkout
-      stripe.redirectToCheckout({ sessionId: data.sessionId });
+      if (data.status === "error") {
+        successMsg.textContent = "Error: " + data.message;
+        successMsg.style.display = "block";
+      }
     })
-    .catch(err => {
-      console.error("Payment init error", err);
-      alert("Error initializing payment. Try again.");
-    });
-  });
+    .catch(err => console.error(err));
+});
 </script>
-</body>
-</html>
