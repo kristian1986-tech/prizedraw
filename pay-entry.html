@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Paid Entry – EasyWin Prize Draw</title>
+<title>Optional Contribution – EasyWin Prize Draw</title>
 
 <style>
 .container {
@@ -61,7 +61,7 @@ input[type="text"] {
 <body>
 
 <div class="container">
-  <h1>Paid Entry</h1>
+  <h1>Optional Contribution</h1>
 
   <p id="currentParticipants" class="participants-count">
     Current participants: 0
@@ -76,23 +76,25 @@ input[type="text"] {
   <form id="paidForm">
     <input type="text" name="name" placeholder="Name" required />
     <input type="text" name="phone" placeholder="Phone" required />
-    <button type="submit" class="button">Pay Now</button>
+    <button type="submit" class="button">Continue</button>
   </form>
+
+  <div id="paypal-button-container" style="margin-top:20px; display:none;"></div>
 
   <p id="successMsg" class="success-msg"></p>
 </div>
 
-<script src="https://js.stripe.com/v3/"></script>
+<!-- PAYPAL SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR"></script>
+
 <script>
 const form = document.getElementById("paidForm");
 const successMsg = document.getElementById("successMsg");
 const closedBox = document.getElementById("closedBox");
 const currentParticipants = document.getElementById("currentParticipants");
+const paypalContainer = document.getElementById("paypal-button-container");
 
-// STRIPE LIVE PUBLIC KEY
-const stripe = Stripe("pk_live_51SpsFaDojLJvrb5SW7QbmQ3zEBqG7DVndDqWg5SPKSBJpRGEfLgo04K8H2BmQ13w0BViei5n53Iw9OjLBN2zrqsB00Ru4ueUhx");
-
-// APPS SCRIPT LIVE URL
+// APPS SCRIPT URL – rămâne
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5iSXwx4rqVcy34My8C27De-G6mvGzyDmQgo9O7CW7rWm4GMt4hPiLPa3ZRgAlDP2r/exec";
 
 // Load status + participants
@@ -114,32 +116,40 @@ async function loadStatus() {
 
 window.addEventListener("DOMContentLoaded", loadStatus);
 
-// PAY NOW
+// SUBMIT FORM → SHOW PAYPAL
 form.addEventListener("submit", async e => {
   e.preventDefault();
 
-  successMsg.textContent = "Redirecting to secure payment...";
+  successMsg.textContent = "Please complete the optional contribution below.";
   successMsg.style.display = "block";
+  paypalContainer.style.display = "block";
 
-  try {
-    const res = await fetch(scriptURL, {
-      method: "POST",
-      body: new FormData(form)
-    });
-    const data = await res.json();
+  const formData = new FormData(form);
 
-    if(data.status === "ok" && data.sessionId) {
-      stripe.redirectToCheckout({ sessionId: data.sessionId });
-    } else if(data.status === "closed") {
+  paypal.Buttons({
+    createOrder: (data, actions) => {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: "5.00"
+          },
+          description: "Optional contribution – EasyWin Prize Draw"
+        }]
+      });
+    },
+    onApprove: async (data, actions) => {
+      await actions.order.capture();
+
+      await fetch(scriptURL, {
+        method: "POST",
+        body: formData
+      });
+
+      successMsg.textContent = "Thank you! Your entry has been recorded.";
       form.style.display = "none";
-      closedBox.style.display = "block";
-    } else {
-      successMsg.textContent = "Payment error. Try again.";
+      paypalContainer.style.display = "none";
     }
-  } catch(err) {
-    console.error("Payment error:", err);
-    successMsg.textContent = "Payment error. Try again.";
-  }
+  }).render('#paypal-button-container');
 });
 </script>
 
