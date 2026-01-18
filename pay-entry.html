@@ -90,35 +90,29 @@ const closedBox = document.getElementById("closedBox");
 const currentParticipants = document.getElementById("currentParticipants");
 
 // STRIPE LIVE PUBLIC KEY
-const stripe = Stripe(
-  "pk_live_51SpsFaDojLJvrb5SW7QbmQ3zEBqG7DVndDqWg5SPKSBJpRGEfLgo04K8H2BmQ13w0BViei5n53Iw9OjLBN2zrqsB00Ru4ueUhx"
-);
+const stripe = Stripe("pk_live_51SpsFaDojLJvrb5SW7QbmQ3zEBqG7DVndDqWg5SPKSBJpRGEfLgo04K8H2BmQ13w0BViei5n53Iw9OjLBN2zrqsB00Ru4ueUhx");
 
 // APPS SCRIPT LIVE URL
-const scriptURL =
-  "https://script.google.com/macros/s/AKfycbz5iSXwx4rqVcy34My8C27De-G6mvGzyDmQgo9O7CW7rWm4GMt4hPiLPa3ZRgAlDP2r/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbz5iSXwx4rqVcy34My8C27De-G6mvGzyDmQgo9O7CW7rWm4GMt4hPiLPa3ZRgAlDP2r/exec";
 
 // Load status + participants
-window.addEventListener("DOMContentLoaded", async () => {
+async function loadStatus() {
   try {
     const res = await fetch(scriptURL);
     const data = await res.json();
-    
-    console.log(data);
-alert(JSON.stringify(data));
-    if (data.currentParticipants !== undefined) {
-      currentParticipants.textContent =
-        "Current participants: " + data.currentParticipants;
+    if(data.currentParticipants !== undefined) {
+      currentParticipants.textContent = "Current participants: " + data.currentParticipants;
     }
-
-    if (data.status === "closed") {
+    if(data.status === "closed") {
       form.style.display = "none";
       closedBox.style.display = "block";
     }
-  } catch (err) {
-    console.error(err);
+  } catch(err) {
+    console.error("Status error:", err);
   }
-});
+}
+
+window.addEventListener("DOMContentLoaded", loadStatus);
 
 // PAY NOW
 form.addEventListener("submit", async e => {
@@ -132,22 +126,18 @@ form.addEventListener("submit", async e => {
       method: "POST",
       body: new FormData(form)
     });
-
     const data = await res.json();
 
-    if (data.status === "ok" && data.sessionId) {
-      stripe.redirectToCheckout({
-        sessionId: data.sessionId
-      });
-    } else if (data.status === "closed") {
+    if(data.status === "ok" && data.sessionId) {
+      stripe.redirectToCheckout({ sessionId: data.sessionId });
+    } else if(data.status === "closed") {
       form.style.display = "none";
       closedBox.style.display = "block";
     } else {
       successMsg.textContent = "Payment error. Try again.";
     }
-
-  } catch (err) {
-    console.error(err);
+  } catch(err) {
+    console.error("Payment error:", err);
     successMsg.textContent = "Payment error. Try again.";
   }
 });
