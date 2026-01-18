@@ -85,7 +85,7 @@ input[type="text"] {
 </div>
 
 <!-- PAYPAL SDK -->
-<script src="https://www.paypal.com/sdk/js?client-id=AW1m5LBgZXaDP9YGkswZs-GJpSibnwN3TbUyioP7k-oqy4eCDFQSk5ff65aULyqWNlt4zZY8Bl7dP77w &currency=EUR"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AW1m5LBgZXaDP9YGkswZs-GJpSibnwN3TbUyioP7k-oqy4eCDFQSk5ff65aULyqWNlt4zZY8Bl7dP77w&currency=EUR"></script>
 
 <script>
 const form = document.getElementById("paidForm");
@@ -94,7 +94,7 @@ const closedBox = document.getElementById("closedBox");
 const currentParticipants = document.getElementById("currentParticipants");
 const paypalContainer = document.getElementById("paypal-button-container");
 
-// APPS SCRIPT URL – rămâne
+// APPS SCRIPT URL – rămâne neschimbat
 const scriptURL = "https://script.google.com/macros/s/AKfycbz5iSXwx4rqVcy34My8C27De-G6mvGzyDmQgo9O7CW7rWm4GMt4hPiLPa3ZRgAlDP2r/exec";
 
 // Load status + participants
@@ -131,7 +131,7 @@ form.addEventListener("submit", async e => {
       return actions.order.create({
         purchase_units: [{
           amount: {
-            value: "5.00"
+            value: "2.50"  // suma corectă
           },
           description: "Optional contribution – EasyWin Prize Draw"
         }]
@@ -140,6 +140,7 @@ form.addEventListener("submit", async e => {
     onApprove: async (data, actions) => {
       await actions.order.capture();
 
+      // trimite info către Google Apps Script
       await fetch(scriptURL, {
         method: "POST",
         body: formData
